@@ -19,6 +19,8 @@ import hudson.matrix.MatrixProject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +61,11 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                                String throttleOption,
                                @CheckForNull ThrottleMatrixProjectOptions matrixOptions
                                ) {
-        this.maxConcurrentPerNode = maxConcurrentPerNode == null ? 0 : maxConcurrentPerNode;
-        this.maxConcurrentTotal = maxConcurrentTotal == null ? 0 : maxConcurrentTotal;
+        this.maxConcurrentPerNode = maxConcurrentPerNode == null || maxConcurrentPerNode == 0 ? 1 : maxConcurrentPerNode;
+        this.maxConcurrentTotal = maxConcurrentTotal == null || maxConcurrentTotal == 0 ? 1 : maxConcurrentTotal;
         this.categories = categories;
         this.throttleEnabled = throttleEnabled;
-        this.throttleOption = throttleOption;
+        this.throttleOption = throttleOption == null ? "category": throttleOption;
         this.matrixOptions = matrixOptions;
     }
 
@@ -115,9 +117,9 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                         descriptor.propertiesByCategory.put(c, properties);
                     }
                     properties.put(this, null);
-                }
             }
         }
+    }
     }
 
     public boolean getThrottleEnabled() {
@@ -326,23 +328,23 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                                 Integer maxConcurrentPerNode,
                                 Integer maxConcurrentTotal,
                                 List<NodeLabeledPair> nodeLabeledPairs) {
-            this.maxConcurrentPerNode = maxConcurrentPerNode == null ? 0 : maxConcurrentPerNode;
-            this.maxConcurrentTotal = maxConcurrentTotal == null ? 0 : maxConcurrentTotal;
+            this.maxConcurrentPerNode = maxConcurrentPerNode == null || maxConcurrentPerNode == 0 ? 1 : maxConcurrentPerNode;
+            this.maxConcurrentTotal = maxConcurrentTotal == null || maxConcurrentTotal == 0 ? 1 : maxConcurrentTotal;
             this.categoryName = categoryName;
             this.nodeLabeledPairs =
                  nodeLabeledPairs == null ? new ArrayList<NodeLabeledPair>() : nodeLabeledPairs;
         }
         
         public Integer getMaxConcurrentPerNode() {
-            if (maxConcurrentPerNode == null)
-                maxConcurrentPerNode = 0;
+            if (maxConcurrentPerNode == null || maxConcurrentPerNode == 0)
+                maxConcurrentPerNode = 1;
             
             return maxConcurrentPerNode;
         }
         
         public Integer getMaxConcurrentTotal() {
-            if (maxConcurrentTotal == null)
-                maxConcurrentTotal = 0;
+            if (maxConcurrentTotal == null || maxConcurrentTotal == 0)
+                maxConcurrentTotal = 1;
             
             return maxConcurrentTotal;
         }
@@ -379,7 +381,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                                Integer maxConcurrentPerNodeLabeled) {
             this.throttledNodeLabel = throttledNodeLabel == null ? new String() : throttledNodeLabel;
             this.maxConcurrentPerNodeLabeled =
-                 maxConcurrentPerNodeLabeled == null ? new Integer(0) : maxConcurrentPerNodeLabeled;
+                 maxConcurrentPerNodeLabeled == null || maxConcurrentPerNodeLabeled == 0 ? new Integer(1) : maxConcurrentPerNodeLabeled;
         }
 
         public String getThrottledNodeLabel() {
@@ -390,8 +392,8 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
         }
 
         public Integer getMaxConcurrentPerNodeLabeled() {
-            if(maxConcurrentPerNodeLabeled == null) {
-                maxConcurrentPerNodeLabeled = new Integer(0);
+            if(maxConcurrentPerNodeLabeled == null || maxConcurrentPerNodeLabeled == 0) {
+                maxConcurrentPerNodeLabeled = new Integer(1);
             }
             return maxConcurrentPerNodeLabeled;
         }

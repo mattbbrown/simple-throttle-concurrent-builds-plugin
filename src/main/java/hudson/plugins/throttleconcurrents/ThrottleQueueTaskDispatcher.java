@@ -26,17 +26,19 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
 
     @Override
     public CauseOfBlockage canTake(Node node, Task task) {
-        
+
         ThrottleJobProperty tjp = getThrottleJobProperty(task);
-        
+
         // Handle multi-configuration filters
         if (!shouldBeThrottled(task, tjp)) {
             return null;
         }
 
-        if (tjp!=null && tjp.getThrottleEnabled()) {
+        if (tjp != null && tjp.getThrottleEnabled()) {
             CauseOfBlockage cause = canRun(task, tjp);
-            if (cause != null) return cause;
+            if (cause != null) {
+                return cause;
+            }
 
             if (tjp.getThrottleOption().equals("project")) {
                 if (tjp.getMaxConcurrentPerNode().intValue() > 0) {
@@ -48,26 +50,25 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
                         return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_MaxCapacityOnNode(runCount));
                     }
                 }
-            }
-            else if (tjp.getThrottleOption().equals("category")) {
+            } else if (tjp.getThrottleOption().equals("category")) {
                 // If the project is in one or more categories...
                 if (tjp.getCategories() != null && !tjp.getCategories().isEmpty()) {
                     for (String catNm : tjp.getCategories()) {
                         // Quick check that catNm itself is a real string.
                         if (catNm != null && !catNm.equals("")) {
-                            List<AbstractProject<?,?>> categoryProjects = ThrottleJobProperty.getCategoryProjects(catNm);
+                            List<AbstractProject<?, ?>> categoryProjects = ThrottleJobProperty.getCategoryProjects(catNm);
 
-                            ThrottleJobProperty.ThrottleCategory category =
-                                ((ThrottleJobProperty.DescriptorImpl)tjp.getDescriptor()).getCategoryByName(catNm);
+                            ThrottleJobProperty.ThrottleCategory category
+                                    = ((ThrottleJobProperty.DescriptorImpl) tjp.getDescriptor()).getCategoryByName(catNm);
 
                             // Double check category itself isn't null
                             if (category != null) {
                                 // Max concurrent per node for category
                                 int maxConcurrentPerNode = getMaxConcurrentPerNodeBasedOnMatchingLabels(
-                                    node, category, category.getMaxConcurrentPerNode().intValue());
+                                        node, category, category.getMaxConcurrentPerNode().intValue());
                                 if (maxConcurrentPerNode > 0) {
                                     int runCount = 0;
-                                    for (AbstractProject<?,?> catProj : categoryProjects) {
+                                    for (AbstractProject<?, ?> catProj : categoryProjects) {
                                         if (Hudson.getInstance().getQueue().isPending(catProj)) {
                                             return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_BuildPending());
                                         }
@@ -91,36 +92,44 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     // @Override on jenkins 4.127+ , but still compatible with 1.399
     public CauseOfBlockage canRun(Queue.Item item) {
         ThrottleJobProperty tjp = getThrottleJobProperty(item.task);
-        if (tjp!=null && tjp.getThrottleEnabled()) {
+        if (tjp != null && tjp.getThrottleEnabled()) {
             return canRun(item.task, tjp);
         }
         return null;
     }
-    
+
     @Nonnull
     private ThrottleMatrixProjectOptions getMatrixOptions(Task task) {
         ThrottleJobProperty tjp = getThrottleJobProperty(task);
-        if (tjp == null) return ThrottleMatrixProjectOptions.DEFAULT;       
+        if (tjp == null) {
+            return ThrottleMatrixProjectOptions.DEFAULT;
+        }
         ThrottleMatrixProjectOptions matrixOptions = tjp.getMatrixOptions();
         return matrixOptions != null ? matrixOptions : ThrottleMatrixProjectOptions.DEFAULT;
     }
-    
+
     private boolean shouldBeThrottled(@Nonnull Task task, @CheckForNull ThrottleJobProperty tjp) {
-       if (tjp == null) return false;
-       if (!tjp.getThrottleEnabled()) return false;
-       
-       // Handle matrix options
-       ThrottleMatrixProjectOptions matrixOptions = tjp.getMatrixOptions();
-       if (matrixOptions == null) matrixOptions = ThrottleMatrixProjectOptions.DEFAULT;
-       if (!matrixOptions.isThrottleMatrixConfigurations() && task instanceof MatrixConfiguration) {
+        if (tjp == null) {
             return false;
-       } 
-       if (!matrixOptions.isThrottleMatrixBuilds()&& task instanceof MatrixProject) {
+        }
+        if (!tjp.getThrottleEnabled()) {
             return false;
-       }
-       
-       // Allow throttling by default
-       return true;
+        }
+
+        // Handle matrix options
+        ThrottleMatrixProjectOptions matrixOptions = tjp.getMatrixOptions();
+        if (matrixOptions == null) {
+            matrixOptions = ThrottleMatrixProjectOptions.DEFAULT;
+        }
+        if (!matrixOptions.isThrottleMatrixConfigurations() && task instanceof MatrixConfiguration) {
+            return false;
+        }
+        if (!matrixOptions.isThrottleMatrixBuilds() && task instanceof MatrixProject) {
+            return false;
+        }
+
+        // Allow throttling by default
+        return true;
     }
 
     public CauseOfBlockage canRun(Task task, ThrottleJobProperty tjp) {
@@ -139,17 +148,16 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
                     return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_MaxCapacityTotal(totalRunCount));
                 }
             }
-        }
-        // If the project is in one or more categories...
+        } // If the project is in one or more categories...
         else if (tjp.getThrottleOption().equals("category")) {
             if (tjp.getCategories() != null && !tjp.getCategories().isEmpty()) {
                 for (String catNm : tjp.getCategories()) {
                     // Quick check that catNm itself is a real string.
                     if (catNm != null && !catNm.equals("")) {
-                        List<AbstractProject<?,?>> categoryProjects = ThrottleJobProperty.getCategoryProjects(catNm);
+                        List<AbstractProject<?, ?>> categoryProjects = ThrottleJobProperty.getCategoryProjects(catNm);
 
-                        ThrottleJobProperty.ThrottleCategory category =
-                            ((ThrottleJobProperty.DescriptorImpl)tjp.getDescriptor()).getCategoryByName(catNm);
+                        ThrottleJobProperty.ThrottleCategory category
+                                = ((ThrottleJobProperty.DescriptorImpl) tjp.getDescriptor()).getCategoryByName(catNm);
 
                         // Double check category itself isn't null
                         if (category != null) {
@@ -157,7 +165,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
                                 int maxConcurrentTotal = category.getMaxConcurrentTotal().intValue();
                                 int totalRunCount = 0;
 
-                                for (AbstractProject<?,?> catProj : categoryProjects) {
+                                for (AbstractProject<?, ?> catProj : categoryProjects) {
                                     if (Hudson.getInstance().getQueue().isPending(catProj)) {
                                         return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_BuildPending());
                                     }
@@ -181,9 +189,9 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     @CheckForNull
     private ThrottleJobProperty getThrottleJobProperty(Task task) {
         if (task instanceof AbstractProject) {
-            AbstractProject<?,?> p = (AbstractProject<?,?>) task;
+            AbstractProject<?, ?> p = (AbstractProject<?, ?>) task;
             if (task instanceof MatrixConfiguration) {
-                p = (AbstractProject<?,?>)((MatrixConfiguration)task).getParent();
+                p = (AbstractProject<?, ?>) ((MatrixConfiguration) task).getParent();
             }
             ThrottleJobProperty tjp = p.getProperty(ThrottleJobProperty.class);
             return tjp;
@@ -193,7 +201,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
 
     private int buildsOfProjectOnNode(Node node, Task task) {
         int runCount = 0;
-        LOGGER.log(Level.FINE, "Checking for builds of {0} on node {1}", new Object[] {task.getName(), node.getDisplayName()});
+        LOGGER.log(Level.FINE, "Checking for builds of {0} on node {1}", new Object[]{task.getName(), node.getDisplayName()});
 
         // I think this'll be more reliable than job.getBuilds(), which seemed to not always get
         // a build right after it was launched, for some reason.
@@ -202,14 +210,14 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
             for (Executor e : computer.getExecutors()) {
                 runCount += buildsOnExecutor(task, e);
             }
-            
+
             ThrottleMatrixProjectOptions matrixOptions = getMatrixOptions(task);
-            if ( matrixOptions.isThrottleMatrixBuilds() && task instanceof MatrixProject) {
+            if (matrixOptions.isThrottleMatrixBuilds() && task instanceof MatrixProject) {
                 for (Executor e : computer.getOneOffExecutors()) {
                     runCount += buildsOnExecutor(task, e);
                 }
             }
-            if ( matrixOptions.isThrottleMatrixConfigurations() && task instanceof MatrixConfiguration) {
+            if (matrixOptions.isThrottleMatrixConfigurations() && task instanceof MatrixConfiguration) {
                 for (Executor e : computer.getOneOffExecutors()) {
                     runCount += buildsOnExecutor(task, e);
                 }
@@ -231,7 +239,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     private int buildsOnExecutor(Task task, Executor exec) {
         int runCount = 0;
         if (exec.getCurrentExecutable() != null
-            && exec.getCurrentExecutable().getParent() == task) {
+                && exec.getCurrentExecutable().getParent() == task) {
             runCount++;
         }
 
@@ -242,23 +250,23 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
      * @param node to compare labels with.
      * @param category to compare labels with.
      * @param maxConcurrentPerNode to return if node labels mismatch.
-     * @return maximum concurrent number of builds per node based on matching labels, as an int.
+     * @return maximum concurrent number of builds per node based on matching
+     * labels, as an int.
      * @author marco.miller@ericsson.com
      */
     private int getMaxConcurrentPerNodeBasedOnMatchingLabels(
-        Node node, ThrottleJobProperty.ThrottleCategory category, int maxConcurrentPerNode)
-    {
+            Node node, ThrottleJobProperty.ThrottleCategory category, int maxConcurrentPerNode) {
         List<ThrottleJobProperty.NodeLabeledPair> nodeLabeledPairs = category.getNodeLabeledPairs();
         int maxConcurrentPerNodeLabeledIfMatch = maxConcurrentPerNode;
         boolean nodeLabelsMatch = false;
         Set<LabelAtom> nodeLabels = node.getAssignedLabels();
 
-        for(ThrottleJobProperty.NodeLabeledPair nodeLabeledPair: nodeLabeledPairs) {
+        for (ThrottleJobProperty.NodeLabeledPair nodeLabeledPair : nodeLabeledPairs) {
             String throttledNodeLabel = nodeLabeledPair.getThrottledNodeLabel();
-            if(!nodeLabelsMatch && !throttledNodeLabel.isEmpty()) {
-                for(LabelAtom aNodeLabel: nodeLabels) {
+            if (!nodeLabelsMatch && !throttledNodeLabel.isEmpty()) {
+                for (LabelAtom aNodeLabel : nodeLabels) {
                     String nodeLabel = aNodeLabel.getDisplayName();
-                    if(nodeLabel.equals(throttledNodeLabel)) {
+                    if (nodeLabel.equals(throttledNodeLabel)) {
                         maxConcurrentPerNodeLabeledIfMatch = nodeLabeledPair.getMaxConcurrentPerNodeLabeled().intValue();
                         LOGGER.log(Level.FINE, "node labels match; => maxConcurrentPerNode'' = {0}", maxConcurrentPerNodeLabeledIfMatch);
                         nodeLabelsMatch = true;
@@ -267,7 +275,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
                 }
             }
         }
-        if(!nodeLabelsMatch) {
+        if (!nodeLabelsMatch) {
             LOGGER.fine("node labels mismatch");
         }
         return maxConcurrentPerNodeLabeledIfMatch;
