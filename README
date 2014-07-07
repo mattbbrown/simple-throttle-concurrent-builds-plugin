@@ -1,3 +1,5 @@
-Work in progress on a plugin to dynamically allocate labels in order
-to allow for throttling the number of concurrent builds of a project
-allowed to run on a given node at one time.
+Simplified throttle-concurrent-builds-plugin
+Simplified to behave like a lock
+Categories allow only 1 concurrent build across all nodes
+A job can only have 1 category
+Input fields removed on UI
