@@ -59,7 +59,8 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                                List<String> categories,
                                boolean throttleEnabled,
                                String throttleOption,
-                               @CheckForNull ThrottleMatrixProjectOptions matrixOptions
+                               @CheckForNull ThrottleMatrixProjectOptions matrixOptions,
+                               boolean simple
                                ) {
         this.maxConcurrentPerNode = maxConcurrentPerNode == null || maxConcurrentPerNode == 0 ? 1 : maxConcurrentPerNode;
         this.maxConcurrentTotal = maxConcurrentTotal == null || maxConcurrentTotal == 0 ? 1 : maxConcurrentTotal;
@@ -208,6 +209,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
     @Extension
     public static final class DescriptorImpl extends JobPropertyDescriptor {
         private List<ThrottleCategory> categories;
+        private boolean simple;
         
         /** Map from category names, to properties including that category. */
         private transient Map<String,Map<ThrottleJobProperty,Void>> propertiesByCategory 
@@ -302,7 +304,15 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
 
             return categories;
         }
-
+        
+        public void setSimple(boolean simple){
+            this.simple = simple;
+        }
+        
+        public boolean getSimple(){
+            return simple;
+        }
+        
         public ListBoxModel doFillCategoryItems() {
             ListBoxModel m = new ListBoxModel();
 

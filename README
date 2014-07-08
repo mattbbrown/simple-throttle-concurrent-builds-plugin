@@ -3,3 +3,6 @@ Simplified to behave like a lock
 Categories allow only 1 concurrent build across all nodes
 A job can only have 1 category
 Input fields removed on UI
+
+To activate simple mode, go to configure jenkins. Under Throttle-Concurrent-Builds, select simple locks.
+Apply the changes and reload the page to see simplified UI.
