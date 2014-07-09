@@ -286,6 +286,8 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         HtmlForm form = page.getFormByName(configFormName);
         List<HtmlButton> buttons = form.getByXPath(buttonsXPath);
         String buttonText = saveButtonText;
+        String simpleButtonText = "Add";
+        String normalButtonText = "Add Category";
         String checkboxName = "simple";
 
         HtmlInput checkbox = form.getInputByName(checkboxName);
@@ -294,7 +296,15 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         if((enableSimpleLocks && !checked) || (!enableSimpleLocks && checked)){
             checkbox.click();
         }
-
+        
+        for (HtmlButton button : buttons) {
+            String thisButtonText = button.getTextContent();
+            if (thisButtonText.equals(simpleButtonText) || thisButtonText.equals(normalButtonText)) {
+                button.click();
+                break;
+            }
+        }
+        
         boolean buttonFound = buttonFoundThusFormSubmitted(form, buttons, buttonText);
         failWithMessageIfButtonNotFoundOnPage(buttonFound, buttonText, url);
     }
@@ -305,19 +315,9 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         URL url = new URL(getURL() + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);
         HtmlForm form = page.getFormByName(configFormName);
-        List<HtmlButton> buttons = form.getByXPath(parentXPath + buttonsXPath);
-        String simpleButtonText = "Add";
-        String normalButtonText = "Add Category";
         String checkboxName = "simple";
-        String NonSimpleInputs[] = {"_.maxConcurrentPerNodeLabeled", "_.maxConcurrentTotal", "_.maxConcurrentPerNode", "_.throttledNodeLabel"};
-        
-        for (HtmlButton button : buttons) {
-            String buttonText = button.getTextContent();
-            if (buttonText.equals(simpleButtonText) || buttonText.equals(normalButtonText)) {
-                button.click();
-            }
-        }
-        
+        String NonSimpleInputs[] = {"_.maxConcurrentTotal", "_.maxConcurrentPerNodeLabeled", "_.maxConcurrentPerNode", "_.throttledNodeLabel"};
+       
         HtmlInput checkbox = page.getElementByName(checkboxName);
         assertNotNull(checkboxName + " Simple Locks checkbox not found on global config page; plugin installed?", checkbox);
         if (simpleLocks) {
