@@ -167,12 +167,29 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
      */
     public void testShouldSeeSimpleUIWhenSimpleLocksAsserted()
             throws ExecutionException, InterruptedException, IOException {
-        configureSimpleGlobalThrottling();
-        assertGlobalConfigPageInSimpleMode();
+        boolean simpleLocks = true;
+        configureGlobalThrottlingMode(simpleLocks);
+        assertGlobalConfigPageBasedOnMode(simpleLocks);
         FreeStyleProject project = createFreeStyleProject();
-        assertJobConfigPageInSimpleMode(project);
+        assertJobConfigPageBasedOnMode(simpleLocks, project);
+        configureGlobalThrottlingMode(false);
     }
 
+    /**
+     * @throws ExecutionException upon Jenkins project build scheduling issue.
+     * @throws InterruptedException upon Jenkins global configuration issue.
+     * @throws IOException upon many potential Jenkins IO issues during test.
+     */
+    public void testShouldSeeNormalUIWhenSimpleLocksNotAsserted()
+            throws ExecutionException, InterruptedException, IOException {
+        boolean simpleLocks = false;
+        configureGlobalThrottlingMode(simpleLocks);
+        assertGlobalConfigPageBasedOnMode(simpleLocks);
+        FreeStyleProject project = createFreeStyleProject();
+        assertJobConfigPageBasedOnMode(simpleLocks, project);
+        configureGlobalThrottlingMode(false);
+    }
+            
     /**
      * @param targetedPairNumber of throttling category maximum/label pairs.
      * @param maxConcurrentPerNode or category-wide maximum.
@@ -262,7 +279,7 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         failWithMessageIfButtonNotFoundOnPage(buttonFound, buttonText, url);
     }
 
-    private void configureSimpleGlobalThrottling()
+    private void configureGlobalThrottlingMode(boolean enableSimpleLocks)
             throws InterruptedException, IOException, MalformedURLException {
         URL url = new URL(getURL() + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);
@@ -270,17 +287,19 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         List<HtmlButton> buttons = form.getByXPath(buttonsXPath);
         String buttonText = saveButtonText;
         String checkboxName = "simple";
-        boolean buttonFound = false;
 
-        HtmlElement checkbox = page.getElementByName(checkboxName);
+        HtmlInput checkbox = form.getInputByName(checkboxName);
+        boolean checked = checkbox.isChecked();
         assertNotNull(checkboxName + " checkbox not found on test job config page; plugin installed?", checkbox);
-        checkbox.click();
+        if((enableSimpleLocks && !checked) || (!enableSimpleLocks && checked)){
+            checkbox.click();
+        }
 
-        buttonFound = buttonFoundThusFormSubmitted(form, buttons, buttonText);
+        boolean buttonFound = buttonFoundThusFormSubmitted(form, buttons, buttonText);
         failWithMessageIfButtonNotFoundOnPage(buttonFound, buttonText, url);
     }
 
-    private void assertGlobalConfigPageInSimpleMode()
+    private void assertGlobalConfigPageBasedOnMode(boolean simpleLocks)
             throws InterruptedException, IOException, MalformedURLException {
 
         URL url = new URL(getURL() + configUrlSuffix);
@@ -294,23 +313,36 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
 
         HtmlInput checkbox = page.getElementByName(checkboxName);
         assertNotNull(checkboxName + " Simple Locks checkbox not found on global config page; plugin installed?", checkbox);
-        assertTrue("Simple Locks checkbox is not checked", checkbox.isChecked());
+        if (simpleLocks) {
+            assertTrue("Simple Locks checkbox is not checked", checkbox.isChecked());
+        } else {
+            assertFalse("Simple Locks checkbox is checked", checkbox.isChecked());
+        }
 
         for (String input : NonSimpleInputs) {
             List<HtmlInput> inputsList = form.getInputsByName(input);
-            assertTrue(input + " could be found in Simple Locks mode on global config page", inputsList.isEmpty());
+            if (simpleLocks) {
+                assertTrue(input + " could be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
+            } else {
+                assertFalse(input + " could not be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
+            }
         }
 
         for (HtmlButton button : buttons) {
             if (button.getTextContent().equals(buttonText)) {
                 buttonFound = true;
+                break;
             }
         }
-
-        failWithMessageIfButtonFoundOnPage(buttonFound, buttonText, url);
+        
+        if (simpleLocks) {
+            failWithMessageIfButtonFoundOnPage(buttonFound, buttonText, url);
+        } else {
+            failWithMessageIfButtonNotFoundOnPage(buttonFound, buttonText, url);
+        }
     }
 
-    private void assertJobConfigPageInSimpleMode(FreeStyleProject project)
+    private void assertJobConfigPageBasedOnMode(boolean simpleLocks, FreeStyleProject project)
             throws InterruptedException, IOException, MalformedURLException {
         URL url = new URL(getURL() + project.getUrl() + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);
@@ -329,12 +361,20 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
                 checkbox.click();
 
                 List<HtmlRadioButtonInput> radios = form.getRadioButtonsByName("throttleOption");
-                assertTrue("Throttle Option radios present in Simple Locks mode on job config page", radios.isEmpty());
+                if (simpleLocks) {
+                    assertTrue("Throttle Option radios present on job config page with simple mode set to " + simpleLocks, radios.isEmpty());
+                } else {
+                    assertFalse("Throttle Option radios not present on job config page with simple mode set to " + simpleLocks, radios.isEmpty());
+                }
 
                 for (String input : NonSimpleInputs) {
                     List<HtmlInput> inputsList = form.getInputsByName(input);
-                    assertTrue(input + " could be found in Simple Locks mode on job config page", inputsList.isEmpty());
-                } 
+                    if (simpleLocks) {
+                        assertTrue(input + " could be found on job config page with simple mode set to" + simpleLocks, inputsList.isEmpty());
+                    } else {
+                        assertFalse(input + " could not be found on job config page with simple mode set to " + simpleLocks, inputsList.isEmpty());
+                    }
+                }
                 break;
             }
         }
