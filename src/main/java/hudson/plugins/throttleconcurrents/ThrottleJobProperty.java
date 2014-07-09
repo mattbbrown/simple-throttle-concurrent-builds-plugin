@@ -59,8 +59,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                                List<String> categories,
                                boolean throttleEnabled,
                                String throttleOption,
-                               @CheckForNull ThrottleMatrixProjectOptions matrixOptions,
-                               boolean simple
+                               @CheckForNull ThrottleMatrixProjectOptions matrixOptions
                                ) {
         this.maxConcurrentPerNode = maxConcurrentPerNode == null || maxConcurrentPerNode == 0 ? 1 : maxConcurrentPerNode;
         this.maxConcurrentTotal = maxConcurrentTotal == null || maxConcurrentTotal == 0 ? 1 : maxConcurrentTotal;
@@ -301,10 +300,16 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
             if (categories == null) {
                 categories = new ArrayList<ThrottleCategory>();
             }
-
+            
+            Collections.sort(categories, new Comparator<ThrottleCategory>() {
+                public int compare(ThrottleCategory o1, ThrottleCategory o2) {
+                    return o1.getCategoryName().compareTo(o2.getCategoryName());
+                }
+            });
+            
             return categories;
         }
-        
+
         public void setSimple(boolean simple){
             this.simple = simple;
         }
