@@ -301,22 +301,29 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
 
     private void assertGlobalConfigPageBasedOnMode(boolean simpleLocks)
             throws InterruptedException, IOException, MalformedURLException {
-
+        
         URL url = new URL(getURL() + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);
         HtmlForm form = page.getFormByName(configFormName);
         List<HtmlButton> buttons = form.getByXPath(parentXPath + buttonsXPath);
-        String buttonText = "Add Category";
+        String simpleButtonText = "Add";
+        String normalButtonText = "Add Category";
         String checkboxName = "simple";
-        boolean buttonFound = false;
         String NonSimpleInputs[] = {"_.maxConcurrentPerNodeLabeled", "_.maxConcurrentTotal", "_.maxConcurrentPerNode", "_.throttledNodeLabel"};
-
+        
+        for (HtmlButton button : buttons) {
+            String buttonText = button.getTextContent();
+            if (buttonText.equals(simpleButtonText) || buttonText.equals(normalButtonText)) {
+                button.click();
+            }
+        }
+        
         HtmlInput checkbox = page.getElementByName(checkboxName);
         assertNotNull(checkboxName + " Simple Locks checkbox not found on global config page; plugin installed?", checkbox);
         if (simpleLocks) {
-            assertTrue("Simple Locks checkbox is not checked", checkbox.isChecked());
+            assertTrue("Simple Locks checkbox is not checked and should be", checkbox.isChecked());
         } else {
-            assertFalse("Simple Locks checkbox is checked", checkbox.isChecked());
+            assertFalse("Simple Locks checkbox is checked and should not be", checkbox.isChecked());
         }
 
         for (String input : NonSimpleInputs) {
@@ -326,19 +333,6 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
             } else {
                 assertFalse(input + " could not be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
             }
-        }
-
-        for (HtmlButton button : buttons) {
-            if (button.getTextContent().equals(buttonText)) {
-                buttonFound = true;
-                break;
-            }
-        }
-        
-        if (simpleLocks) {
-            failWithMessageIfButtonFoundOnPage(buttonFound, buttonText, url);
-        } else {
-            failWithMessageIfButtonNotFoundOnPage(buttonFound, buttonText, url);
         }
     }
 
