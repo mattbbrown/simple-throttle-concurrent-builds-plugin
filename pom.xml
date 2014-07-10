@@ -88,9 +88,9 @@ THE SOFTWARE.
   </repositories>
 
   <scm>
-    <connection>scm:git:git://github.com/mattbbrown/throttle-concurrent-builds-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:mattbbrown/throttle-concurrent-builds-plugin.git</developerConnection>
-    <url>http://github.com/mattbbrown/throttle-concurrents-plugin</url>
+    <connection>scm:git:git://github.com/mattbbrown/simple-throttle-concurrent-builds-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:mattbbrown/simple-throttle-concurrent-builds-plugin.git</developerConnection>
+    <url>http://github.com/mattbbrown/simple-throttle-concurrents-plugin</url>
   </scm>
 
 
@@ -105,6 +105,12 @@ THE SOFTWARE.
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>2.0.1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>jenkins-core</artifactId>
+            <version>1.532.3</version>
             <type>jar</type>
         </dependency>
     </dependencies>

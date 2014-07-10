@@ -189,7 +189,7 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         assertJobConfigPageBasedOnMode(simpleLocks, project);
         configureGlobalThrottlingMode(false);
     }
-            
+
     /**
      * @param targetedPairNumber of throttling category maximum/label pairs.
      * @param maxConcurrentPerNode or category-wide maximum.
@@ -286,26 +286,17 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         HtmlForm form = page.getFormByName(configFormName);
         List<HtmlButton> buttons = form.getByXPath(buttonsXPath);
         String buttonText = saveButtonText;
-        String simpleButtonText = "Add";
-        String normalButtonText = "Add Category";
         String checkboxName = "simple";
+        boolean buttonFound;
 
         HtmlInput checkbox = form.getInputByName(checkboxName);
         boolean checked = checkbox.isChecked();
         assertNotNull(checkboxName + " checkbox not found on test job config page; plugin installed?", checkbox);
-        if((enableSimpleLocks && !checked) || (!enableSimpleLocks && checked)){
+        if ((enableSimpleLocks && !checked) || (!enableSimpleLocks && checked)) {
             checkbox.click();
         }
-        
-        for (HtmlButton button : buttons) {
-            String thisButtonText = button.getTextContent();
-            if (thisButtonText.equals(simpleButtonText) || thisButtonText.equals(normalButtonText)) {
-                button.click();
-                break;
-            }
-        }
-        
-        boolean buttonFound = buttonFoundThusFormSubmitted(form, buttons, buttonText);
+
+        buttonFound = buttonFoundThusFormSubmitted(form, buttons, buttonText);
         failWithMessageIfButtonNotFoundOnPage(buttonFound, buttonText, url);
     }
 
@@ -315,9 +306,15 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         URL url = new URL(getURL() + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);
         HtmlForm form = page.getFormByName(configFormName);
+        List<HtmlButton> buttons = form.getByXPath(parentXPath + buttonsXPath);
+        String normalButtonText = "Add Category";
+        String simpleButtonText = "Add";
+        String labeledNodeButtonText = "Add Maximum Per Labeled Node";
         String checkboxName = "simple";
-        String NonSimpleInputs[] = {"_.maxConcurrentTotal", "_.maxConcurrentPerNodeLabeled", "_.maxConcurrentPerNode", "_.throttledNodeLabel"};
-       
+        boolean addButtonFound = false;
+        boolean labeledNodeButtonFound = false;
+        String NonSimpleInputs[] = {"_.maxConcurrentPerNodeLabeled", "_.maxConcurrentTotal", "_.maxConcurrentPerNode", "_.throttledNodeLabel"};
+
         HtmlInput checkbox = page.getElementByName(checkboxName);
         assertNotNull(checkboxName + " Simple Locks checkbox not found on global config page; plugin installed?", checkbox);
         if (simpleLocks) {
@@ -326,13 +323,46 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
             assertFalse("Simple Locks checkbox is checked and should not be", checkbox.isChecked());
         }
 
-        for (String input : NonSimpleInputs) {
-            List<HtmlInput> inputsList = form.getInputsByName(input);
-            if (simpleLocks) {
-                assertTrue(input + " could be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
-            } else {
-                assertFalse(input + " could not be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
+        for (HtmlButton button : buttons) {
+            String thisButtonText = button.getTextContent();
+            if (thisButtonText.equals(simpleButtonText) || thisButtonText.equals(normalButtonText)) {
+                addButtonFound = true;
+                button.click();
+                break;
             }
+        }
+        assertTrue("Add Category/Lock button not found on page", addButtonFound);
+        
+        buttons = form.getByXPath(parentXPath + buttonsXPath);
+        for (HtmlButton deeperButton : buttons) {
+            if (deeperButton.getTextContent().equals(labeledNodeButtonText)) {
+                labeledNodeButtonFound = true;
+
+                List<HtmlInput> inputsList = new LinkedList<HtmlInput>();
+                int clickThenWaitForMaxTries = 3;
+                while (inputsList.isEmpty() && clickThenWaitForMaxTries > 0) {
+                    page = (HtmlPage) deeperButton.click();
+                    TimeUnit.SECONDS.sleep(1);
+                    form = page.getFormByName(configFormName);
+                    inputsList = form.getInputsByName("_.throttledNodeLabel");
+                    clickThenWaitForMaxTries--;
+                }
+
+                for (String input : NonSimpleInputs) {
+                    inputsList = form.getInputsByName(input);
+                    if (simpleLocks) {
+                        assertTrue(input + " could be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
+                    } else {
+                        assertFalse(input + " could not be found on global config page with Simple Locks set to " + simpleLocks, inputsList.isEmpty());
+                    }
+                }
+                break;
+            }
+        }
+        if(simpleLocks){
+            assertFalse("Add Maximum Per Labeled Node Button found with Simple Locks set to " + simpleLocks, labeledNodeButtonFound);
+        }else{
+            assertTrue("Add Maximum Per Labeled Node Button not found with Simple Locks set to " + simpleLocks, labeledNodeButtonFound);
         }
     }
 
@@ -517,10 +547,6 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
 
     private void failWithMessageIfButtonNotFoundOnPage(boolean buttonFound, String buttonText, URL url) {
         assertTrue(buttonText + " button not found on " + url, buttonFound);
-    }
-
-    private void failWithMessageIfButtonFoundOnPage(boolean buttonFound, String buttonText, URL url) {
-        assertFalse(buttonText + " button should not found on " + url, buttonFound);
     }
 
     private HtmlPage getLoggerPage(String logger)
