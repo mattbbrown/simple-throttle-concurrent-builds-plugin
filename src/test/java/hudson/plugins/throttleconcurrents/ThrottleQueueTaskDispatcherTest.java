@@ -307,13 +307,12 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         HtmlPage page = createWebClient().getPage(url);
         HtmlForm form = page.getFormByName(configFormName);
         List<HtmlButton> buttons = form.getByXPath(parentXPath + buttonsXPath);
-        String normalButtonText = "Add Category";
-        String simpleButtonText = "Add";
+        String addButtonText = simpleLocks ? "Add" : "Add Category";
         String labeledNodeButtonText = "Add Maximum Per Labeled Node";
         String checkboxName = "simple";
         boolean addButtonFound = false;
         boolean labeledNodeButtonFound = false;
-        String NonSimpleInputs[] = {"_.maxConcurrentPerNodeLabeled", "_.maxConcurrentTotal", "_.maxConcurrentPerNode", "_.throttledNodeLabel"};
+        String NonSimpleInputs[] = {"_.maxConcurrentTotal", "_.maxConcurrentPerNodeLabeled", "_.throttledNodeLabel", "_.maxConcurrentPerNode"};
 
         HtmlInput checkbox = page.getElementByName(checkboxName);
         assertNotNull(checkboxName + " Simple Locks checkbox not found on global config page; plugin installed?", checkbox);
@@ -324,14 +323,13 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         }
 
         for (HtmlButton button : buttons) {
-            String thisButtonText = button.getTextContent();
-            if (thisButtonText.equals(simpleButtonText) || thisButtonText.equals(normalButtonText)) {
+            if (button.getTextContent().equals(addButtonText)) {
                 addButtonFound = true;
                 button.click();
                 break;
             }
         }
-        assertTrue("Add Category/Lock button not found on page", addButtonFound);
+        failWithMessageIfButtonNotFoundOnPage(addButtonFound, addButtonText, url);
         
         buttons = form.getByXPath(parentXPath + buttonsXPath);
         for (HtmlButton deeperButton : buttons) {
@@ -374,7 +372,7 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
         List<HtmlButton> buttons = form.getByXPath(buttonsXPath);
         String buttonText = saveButtonText;
         boolean buttonFound = false;
-        String NonSimpleInputs[] = {"_.maxConcurentTotal, _.maxConcurrentPerNode"};
+        String NonSimpleInputs[] = {"_.maxConcurentTotal", "_.maxConcurrentPerNode"};
 
         for (HtmlButton button : buttons) {
             if (button.getTextContent().equals(buttonText)) {
@@ -390,7 +388,8 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
                 } else {
                     assertFalse("Throttle Option radios not present on job config page with simple mode set to " + simpleLocks, radios.isEmpty());
                 }
-
+                
+                form = page.getFormByName(configFormName);
                 for (String input : NonSimpleInputs) {
                     List<HtmlInput> inputsList = form.getInputsByName(input);
                     if (simpleLocks) {

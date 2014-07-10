@@ -107,12 +107,6 @@ THE SOFTWARE.
             <version>2.0.1</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-core</artifactId>
-            <version>1.532.3</version>
-            <type>jar</type>
-        </dependency>
     </dependencies>
 </project>  
 
