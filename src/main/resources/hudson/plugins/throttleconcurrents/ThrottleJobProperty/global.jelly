@@ -39,7 +39,7 @@
         </j:if>
         
         <j:if test="${descriptor.simple}">           
-            <f:entry title="VHT Installation" field="categories">
+            <f:entry title="Locks" field="categories">
                 <f:repeatable field="categories" add="${%Add}" minimum="0">
                     <table width="100%">
                         <f:entry title="Name:" field="categoryName">

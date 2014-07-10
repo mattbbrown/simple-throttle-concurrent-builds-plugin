@@ -164,7 +164,6 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
                             if (category.getMaxConcurrentTotal().intValue() > 0) {
                                 int maxConcurrentTotal = category.getMaxConcurrentTotal().intValue();
                                 int totalRunCount = 0;
-
                                 for (AbstractProject<?, ?> catProj : categoryProjects) {
                                     if (Hudson.getInstance().getQueue().isPending(catProj)) {
                                         return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_BuildPending());
@@ -182,7 +181,6 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
                 }
             }
         }
-
         return null;
     }
 
