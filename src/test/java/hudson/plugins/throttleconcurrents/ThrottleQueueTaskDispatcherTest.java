@@ -302,7 +302,7 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
 
     private void assertGlobalConfigPageBasedOnMode(boolean simpleLocks)
             throws InterruptedException, IOException, MalformedURLException {
-        
+
         URL url = new URL(getURL() + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);
         HtmlForm form = page.getFormByName(configFormName);
@@ -330,7 +330,7 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
             }
         }
         failWithMessageIfButtonNotFoundOnPage(addButtonFound, addButtonText, url);
-        
+
         buttons = form.getByXPath(parentXPath + buttonsXPath);
         for (HtmlButton deeperButton : buttons) {
             if (deeperButton.getTextContent().equals(labeledNodeButtonText)) {
@@ -357,9 +357,9 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
                 break;
             }
         }
-        if(simpleLocks){
+        if (simpleLocks) {
             assertFalse("Add Maximum Per Labeled Node Button found with Simple Locks set to " + simpleLocks, labeledNodeButtonFound);
-        }else{
+        } else {
             assertTrue("Add Maximum Per Labeled Node Button not found with Simple Locks set to " + simpleLocks, labeledNodeButtonFound);
         }
     }
@@ -388,12 +388,12 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
                 } else {
                     assertFalse("Throttle Option radios not present on job config page with simple mode set to " + simpleLocks, radios.isEmpty());
                 }
-                
+
                 form = page.getFormByName(configFormName);
                 for (String input : NonSimpleInputs) {
                     List<HtmlInput> inputsList = form.getInputsByName(input);
                     if (simpleLocks) {
-                        assertTrue(input + " could be found on job config page with simple mode set to" + simpleLocks, inputsList.isEmpty());
+                        assertTrue(input + " could be found on job config page with simple mode set to " + simpleLocks, inputsList.isEmpty());
                     } else {
                         assertFalse(input + " could not be found on job config page with simple mode set to " + simpleLocks, inputsList.isEmpty());
                     }
