@@ -8,3 +8,5 @@ work
 .project
 .settings
 bin
+/JavaTesting/build/
+/JavaTesting/nbproject/private/

@@ -10,7 +10,6 @@ import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.Queue;
 import hudson.model.Queue.Task;
-import hudson.model.Resource;
 import hudson.model.labels.LabelAtom;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskDispatcher;
@@ -103,6 +102,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
             if (serverIsFree(server)) {
                 foundFreeServer = true;
                 setTarget(server, tjp);
+                markServerAsTaken(server);
                 break;
             }
         }
@@ -206,7 +206,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         List<String> list = new ArrayList<String>();
         Process p;
         try {
-            p = Runtime.getRuntime().exec("knife client list");
+            p = Runtime.getRuntime().exec("knife client list ['installation']=" + VHT_Installation + " && ['taken']=false");
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -220,7 +220,16 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         }
         return list;
     }
-
+    
+    private void markServerAsTaken(String server){
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec("knife client " + server + " ");
+            p.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private boolean serverIsFree(String serverName) {
         boolean serverFree = true;
         for (Node node : Hudson.getInstance().getNodes()) {
