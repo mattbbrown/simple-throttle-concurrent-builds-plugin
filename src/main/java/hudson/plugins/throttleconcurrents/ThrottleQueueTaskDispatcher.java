@@ -10,9 +10,13 @@ import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.Queue;
 import hudson.model.Queue.Task;
+import hudson.model.Resource;
 import hudson.model.labels.LabelAtom;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskDispatcher;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Set;
@@ -92,6 +96,20 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     // @Override on jenkins 4.127+ , but still compatible with 1.399
     public CauseOfBlockage canRun(Queue.Item item) {
         ThrottleJobProperty tjp = getThrottleJobProperty(item.task);
+        String VHT_Installation = "SA Windows 2008";
+        List<String> servers = getServersFromChef(VHT_Installation);
+        boolean foundFreeServer = false;
+        for (String server : servers) {
+            if (serverIsFree(server)) {
+                foundFreeServer = true;
+                setTarget(server, tjp);
+                break;
+            }
+        }
+        if (!foundFreeServer) {
+            return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_MaxCapacityTotal(0));
+        }
+
         if (tjp != null && tjp.getThrottleEnabled()) {
             return canRun(item.task, tjp);
         }
@@ -182,6 +200,52 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
             }
         }
         return null;
+    }
+
+    private List<String> getServersFromChef(String VHT_Installation) {
+        List<String> list = new ArrayList<String>();
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec("knife client list");
+            p.waitFor();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                list.add(line);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    private boolean serverIsFree(String serverName) {
+        boolean serverFree = true;
+        for (Node node : Hudson.getInstance().getNodes()) {
+            Computer computer = node.toComputer();
+            if (computer != null) {
+                for (Executor e : computer.getExecutors()) {
+                    if (buildOnExecutorUsingServer(serverName, e)) {
+                        serverFree = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return serverFree;
+    }
+
+    private boolean buildOnExecutorUsingServer(String serverName, Executor exec) {
+        if (exec.getCurrentExecutable() != null) {
+            return exec.getCurrentWorkUnit().context.item.getParams().contains(serverName);
+        }
+        return false;
+    }
+
+    private void setTarget(String server, ThrottleJobProperty tjp) {
+        tjp.setTarget(server);
     }
 
     @CheckForNull

@@ -46,6 +46,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
     private String throttleOption;
     private transient boolean throttleConfiguration;
     private @CheckForNull ThrottleMatrixProjectOptions matrixOptions;
+    private String target;
 
     /**
      * Store a config version so we're able to migrate config on various
@@ -121,7 +122,15 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
         }
     }
     }
-
+    
+    public String getTarget() {
+        return target;
+    }
+    
+    public void setTarget(String target){
+        this.target = target;
+    }
+    
     public boolean getThrottleEnabled() {
         return throttleEnabled;
     }
