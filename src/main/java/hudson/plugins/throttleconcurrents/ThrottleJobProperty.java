@@ -68,6 +68,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
         this.throttleEnabled = throttleEnabled;
         this.throttleOption = throttleOption == null ? "category": throttleOption;
         this.matrixOptions = matrixOptions;
+        this.target = "";
     }
 
 

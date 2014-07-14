@@ -23,13 +23,18 @@ public class JavaTesting {
         Process p;
         try {
             long startTime = System.currentTimeMillis();
-            p = Runtime.getRuntime().exec("cmd /C  knife exec -E \"nodes.find(:name => 'TERMINUS.qalab.local') {|n| n.set['vht']['taken']=true; n.save}\"");
+           //p = Runtime.getRuntime().exec("cmd /C  knife exec -E \"nodes.find(:name => 'TERMINUS.qalab.local') {|n| n.set['vht']['taken']=true; n.save}\"");           
+            p = Runtime.getRuntime().exec("cmd /C  knife tag delete TERMINUS.qalab.local SA_Windows_2012");
+            p.waitFor();
+            
+            p = Runtime.getRuntime().exec("cmd /C  knife tag create TERMINUS.qalab.local SA_Windows_2012");
             p.waitFor();
 
             String line;
             boolean found = false;
             while (!found) {
-                p = Runtime.getRuntime().exec("cmd /C  knife exec -E \"nodes.find(:VHT_Installation => 'SA_Windows_2012', :taken => 'true') {|n| puts n.name}\"");
+                //p = Runtime.getRuntime().exec("cmd /C  knife exec -E \"nodes.find(:VHT_Installation => 'SA_Windows_2012', :taken => 'true') {|n| puts n.name}\"");
+                p = Runtime.getRuntime().exec("cmd /C  knife search tags:SA_Windows_2012 -i");
                 p.waitFor();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 

@@ -95,24 +95,20 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     // @Override on jenkins 4.127+ , but still compatible with 1.399
     public CauseOfBlockage canRun(Queue.Item item) {
         ThrottleJobProperty tjp = getThrottleJobProperty(item.task);
-        String VHT_Installation = "SA Windows 2008";
+        String VHT_Installation = tjp.getCategories().get(0);
         List<String> servers = getServersFromChef(VHT_Installation);
         boolean foundFreeServer = false;
         for (String server : servers) {
             if (serverIsFree(server)) {
                 foundFreeServer = true;
-                setTarget(server, tjp);
-                markServerAsTaken(server);
+                tjp.setTarget(server);
                 break;
             }
         }
         if (!foundFreeServer) {
-            return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_MaxCapacityTotal(0));
+            return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_NoFreeServers(VHT_Installation));
         }
 
-        if (tjp != null && tjp.getThrottleEnabled()) {
-            return canRun(item.task, tjp);
-        }
         return null;
     }
 
@@ -206,10 +202,12 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         List<String> list = new ArrayList<String>();
         Process p;
         try {
-            p = Runtime.getRuntime().exec("knife client list ['installation']=" + VHT_Installation + " && ['taken']=false");
+            p = Runtime.getRuntime().exec("cmd /C  knife search tags:" + VHT_Installation +" -i");
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
+            reader.readLine();
+            reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
                 list.add(line);
@@ -221,15 +219,6 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         return list;
     }
     
-    private void markServerAsTaken(String server){
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec("knife client " + server + " ");
-            p.waitFor();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     private boolean serverIsFree(String serverName) {
         boolean serverFree = true;
         for (Node node : Hudson.getInstance().getNodes()) {
@@ -248,15 +237,15 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
 
     private boolean buildOnExecutorUsingServer(String serverName, Executor exec) {
         if (exec.getCurrentExecutable() != null) {
-            return exec.getCurrentWorkUnit().context.item.getParams().contains(serverName);
+            Task task = exec.getCurrentExecutable().getParent().getOwnerTask();
+            ThrottleJobProperty tjp = getThrottleJobProperty(task);
+            if (tjp.getTarget() != null) {
+                return tjp.getTarget().equals(serverName);
+            }
         }
         return false;
     }
-
-    private void setTarget(String server, ThrottleJobProperty tjp) {
-        tjp.setTarget(server);
-    }
-
+    
     @CheckForNull
     private ThrottleJobProperty getThrottleJobProperty(Task task) {
         if (task instanceof AbstractProject) {
