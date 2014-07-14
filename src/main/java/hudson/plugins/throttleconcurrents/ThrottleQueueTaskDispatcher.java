@@ -98,6 +98,11 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         String VHT_Installation = tjp.getCategories().get(0);
         List<String> servers = getServersFromChef(VHT_Installation);
         boolean foundFreeServer = false;
+        String loggedMessage = "VHT_Installation: " + VHT_Installation;
+        for(String server: servers){
+            loggedMessage = loggedMessage.concat("\n" + server);
+        }
+        LOGGER.log(Level.FINE, loggedMessage);
         for (String server : servers) {
             if (serverIsFree(server)) {
                 foundFreeServer = true;
@@ -201,13 +206,14 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     private List<String> getServersFromChef(String VHT_Installation) {
         List<String> list = new ArrayList<String>();
         Process p;
+        String[] cmdarray = {"knife", "search", "tags:" + VHT_Installation, "-i"};
         try {
-            p = Runtime.getRuntime().exec("knife search tags:" + VHT_Installation +" -i");
+            p = Runtime.getRuntime().exec(cmdarray);
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-            reader.readLine();
-            reader.readLine();
+            LOGGER.log(Level.FINE,"Line 1: " + reader.readLine());
+            LOGGER.log(Level.FINE,"Line 2: " + reader.readLine());
             String line;
             while ((line = reader.readLine()) != null) {
                 list.add(line);
