@@ -202,7 +202,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         List<String> list = new ArrayList<String>();
         Process p;
         try {
-            p = Runtime.getRuntime().exec("cmd /C  knife search tags:" + VHT_Installation +" -i");
+            p = Runtime.getRuntime().exec("knife search tags:" + VHT_Installation +" -i");
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
