@@ -96,24 +96,29 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     public CauseOfBlockage canRun(Queue.Item item) {
         ThrottleJobProperty tjp = getThrottleJobProperty(item.task);
         String VHT_Installation = tjp.getCategories().get(0);
-        List<String> servers = getServersFromChef(VHT_Installation);
+        //List<String> servers = getServersFromChef(VHT_Installation);
+        List<String> servers = new ArrayList<String>();
+        servers.add("ANDERSON.devlab.local");
+        servers.add("TERMINUS.qalab.local");
         boolean foundFreeServer = false;
         String loggedMessage = "VHT_Installation: " + VHT_Installation;
         for(String server: servers){
             loggedMessage = loggedMessage.concat("\n" + server);
         }
-        LOGGER.log(Level.FINE, loggedMessage);
+        LOGGER.log(Level.SEVERE, loggedMessage);
         for (String server : servers) {
-            if (serverIsFree(server)) {
+            boolean serverFree = serverIsFree(server);
+            if (serverFree) {
                 foundFreeServer = true;
+                LOGGER.log(Level.SEVERE, "A Free Server Was Found, that server was {0}", server);   
                 tjp.setTarget(server);
-                break;
+                return null;
             }
         }
         if (!foundFreeServer) {
+            LOGGER.log(Level.SEVERE, "No Free Server Found");
             return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_NoFreeServers(VHT_Installation));
-        }
-
+        }     
         return null;
     }
 
@@ -212,8 +217,8 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-            LOGGER.log(Level.FINE,"Line 1: " + reader.readLine());
-            LOGGER.log(Level.FINE,"Line 2: " + reader.readLine());
+            LOGGER.log(Level.SEVERE, "Line 1: {0}", reader.readLine());
+            LOGGER.log(Level.SEVERE, "Line 2: {0}", reader.readLine());
             String line;
             while ((line = reader.readLine()) != null) {
                 list.add(line);
@@ -227,11 +232,14 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     
     private boolean serverIsFree(String serverName) {
         boolean serverFree = true;
+        LOGGER.log(Level.SEVERE, "Hudson.getInstance().getNodes(): {0}", Hudson.getInstance().getNodes());
+        LOGGER.log(Level.SEVERE, "Hudson.getInstance().getNodes().size: {0}", Hudson.getInstance().getNodes().size());
         for (Node node : Hudson.getInstance().getNodes()) {
-            Computer computer = node.toComputer();
+            Computer computer = node.toComputer();          
             if (computer != null) {
                 for (Executor e : computer.getExecutors()) {
-                    if (buildOnExecutorUsingServer(serverName, e)) {
+                    boolean serverBusy = buildOnExecutorUsingServer(serverName, e);
+                    if (serverBusy) {
                         serverFree = false;
                         break;
                     }
@@ -242,9 +250,11 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     }
 
     private boolean buildOnExecutorUsingServer(String serverName, Executor exec) {
-        if (exec.getCurrentExecutable() != null) {
+        LOGGER.log(Level.SEVERE,"This executor has a job running on it?: {0}", exec.getCurrentExecutable() != null); 
+        if (exec.getCurrentExecutable() != null) {  
             Task task = exec.getCurrentExecutable().getParent().getOwnerTask();
             ThrottleJobProperty tjp = getThrottleJobProperty(task);
+            LOGGER.log(Level.SEVERE,"The job has a target of {0}", tjp.getTarget()); 
             if (tjp.getTarget() != null) {
                 return tjp.getTarget().equals(serverName);
             }

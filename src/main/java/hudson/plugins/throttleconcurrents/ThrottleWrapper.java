@@ -6,11 +6,13 @@
 package hudson.plugins.throttleconcurrents;
 
 import hudson.EnvVars;
+import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.BuildWrapper;
 
 import java.io.IOException;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  *
@@ -20,6 +22,7 @@ public class ThrottleWrapper extends BuildWrapper {
 
     String target = "";
 
+    @Override
     public Environment setUp(AbstractBuild abstractBuild, Launcher launcher, BuildListener buildListener) throws IOException, InterruptedException {
         AbstractProject p = abstractBuild.getProject();
         ThrottleJobProperty tjp = (ThrottleJobProperty) p.getProperty(ThrottleJobProperty.class);
@@ -37,4 +40,18 @@ public class ThrottleWrapper extends BuildWrapper {
             }
         };
     }
+    
+    @Extension
+    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+    
+    public static final class DescriptorImpl extends Descriptor<BuildWrapper> {
+        
+        public DescriptorImpl() {
+            super(ThrottleWrapper.class);
+        }
+
+        @Override
+        public String getDisplayName() { return ""; }
+    }
 }
+    

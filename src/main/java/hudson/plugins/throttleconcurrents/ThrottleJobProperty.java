@@ -123,12 +123,15 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
         }
     }
     }
-    
+
     public String getTarget() {
+        if (target == null) {
+            target = "";
+        }
         return target;
     }
-    
-    public void setTarget(String target){
+
+    public void setTarget(String target) {
         this.target = target;
     }
     
