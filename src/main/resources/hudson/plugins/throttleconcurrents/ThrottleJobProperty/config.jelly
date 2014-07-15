@@ -4,7 +4,7 @@
                          title="${%VHT Installation}"
                          inline="true"
                          checked="${instance.throttleEnabled}">
-            <f:entry> 
+            <f:entry>
                 <table width="100%">
                     <tr>
                         <td width="80%">
