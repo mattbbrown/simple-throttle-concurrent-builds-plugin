@@ -11,9 +11,6 @@ import hudson.model.Queue;
 import hudson.model.Queue.Task;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskDispatcher;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -26,50 +23,30 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
     @Override
     public CauseOfBlockage canRun(Queue.Item item) {
         ThrottleJobProperty tjp = getThrottleJobProperty(item.task);
+        if (tjp == null) {
+            return null;
+        }
         String VHT_Installation = tjp.getCategories().get(0);
-        //List<String> servers = getServersFromChef(VHT_Installation);
-        List<String> servers = new ArrayList<String>();
-        servers.add("ANDERSON.devlab.local");
-        servers.add("TERMINUS.qalab.local");
+        List<String> servers;
+        ThrottleJobProperty.DescriptorImpl descriptor =  (ThrottleJobProperty.DescriptorImpl)tjp.getDescriptor();
+        LOGGER.log(Level.SEVERE, "getServersFromTJP: {0}", descriptor.getServersFromTJP(VHT_Installation));
+        servers = descriptor.getServersFromTJP(VHT_Installation);
+        
         boolean foundFreeServer = false;
         for (String server : servers) {
             boolean serverFree = serverIsFree(server);
             if (serverFree) {
                 foundFreeServer = true;
-                LOGGER.log(Level.SEVERE, "A Free Server Was Found, that server was {0}", server);   
                 tjp.setTarget(server);
                 break;
             }
         }
         if (!foundFreeServer) {
-            LOGGER.log(Level.SEVERE, "No Free Server Found");
             return CauseOfBlockage.fromMessage(Messages._ThrottleQueueTaskDispatcher_NoFreeServers(VHT_Installation));
         }
         return null;
     }
 
-    private List<String> getServersFromChef(String VHT_Installation) {
-        List<String> list = new ArrayList<String>();
-        Process p;
-        String[] cmdarray = {"knife", "search", "tags:" + VHT_Installation, "-i"};
-        try {
-            p = Runtime.getRuntime().exec(cmdarray);
-            p.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            LOGGER.log(Level.SEVERE, "Line 1: {0}", reader.readLine());
-            LOGGER.log(Level.SEVERE, "Line 2: {0}", reader.readLine());
-            String line;
-            while ((line = reader.readLine()) != null) {
-                list.add(line);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-    
     private boolean serverIsFree(String serverName) {
         boolean serverFree = true;
         if (serverIsBeingUsedOnNode(Hudson.getInstance(), serverName)) {
@@ -108,7 +85,7 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         }
         return false;
     }
-    
+
     @CheckForNull
     private ThrottleJobProperty getThrottleJobProperty(Task task) {
         if (task instanceof AbstractProject) {

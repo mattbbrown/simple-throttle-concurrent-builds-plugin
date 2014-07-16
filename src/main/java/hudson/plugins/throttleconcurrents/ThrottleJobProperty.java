@@ -25,11 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 
 import net.sf.json.JSONObject;
+import static org.jfree.chart.renderer.AreaRendererEndType.LEVEL;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -165,7 +168,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
     public ThrottleMatrixProjectOptions getMatrixOptions() {
         return matrixOptions;
     }
-        
+     
     /**
      * Check if the build throttles {@link MatrixBuild}s.
      */
@@ -222,6 +225,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
     public static final class DescriptorImpl extends JobPropertyDescriptor {
         private List<ThrottleCategory> categories;
         private boolean simple;
+        private Map<String,List<String>> allServers = new HashMap<String,List<String>>();
         
         /** Map from category names, to properties including that category. */
         private transient Map<String,Map<ThrottleJobProperty,Void>> propertiesByCategory 
@@ -243,7 +247,15 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
                 }
             }
         }
-     
+        
+        public List<String> getServersFromTJP(String VHT_Installation) {
+            return allServers.get(VHT_Installation);
+        }
+        
+        public void setServers(String VHT_Installation, List<String> servers){
+            allServers.put(VHT_Installation, servers);
+        }
+        
         @Override
         public String getDisplayName() {
             return "Throttle Concurrent Builds";
@@ -309,6 +321,14 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
             this.categories = categories;
         }
         
+        public List<String> getCategoryNames(){
+            List<String> categoryNames = new ArrayList<String>();
+            for(ThrottleCategory category: categories){
+                categoryNames.add(category.getCategoryName());
+            }
+            return categoryNames;
+        }
+        
         public List<ThrottleCategory> getCategories() {
             if (categories == null) {
                 categories = new ArrayList<ThrottleCategory>();
@@ -342,7 +362,7 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
 
             return m;
         }
-        
+
     }
 
     public static final class ThrottleCategory extends AbstractDescribableImpl<ThrottleCategory> {
@@ -434,4 +454,6 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
             }
         }
     }
+    
+    private static final Logger LOGGER = Logger.getLogger(ThrottleQueueTaskDispatcher.class.getName());
 }

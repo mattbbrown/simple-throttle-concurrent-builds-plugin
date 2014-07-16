@@ -5,10 +5,8 @@
  */
 package javatesting;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -20,34 +18,10 @@ public class JavaTesting {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Process p;
-        try {
-            long startTime = System.currentTimeMillis();
-           //p = Runtime.getRuntime().exec("cmd /C  knife exec -E \"nodes.find(:name => 'TERMINUS.qalab.local') {|n| n.set['vht']['taken']=true; n.save}\"");           
-            p = Runtime.getRuntime().exec("cmd /C  knife tag delete TERMINUS.qalab.local SA_Windows_2012");
-            p.waitFor();
-            
-            p = Runtime.getRuntime().exec("cmd /C  knife tag create TERMINUS.qalab.local SA_Windows_2012");
-            p.waitFor();
-
-            String line;
-            boolean found = false;
-            while (!found) {
-                //p = Runtime.getRuntime().exec("cmd /C  knife exec -E \"nodes.find(:VHT_Installation => 'SA_Windows_2012', :taken => 'true') {|n| puts n.name}\"");
-                p = Runtime.getRuntime().exec("cmd /C  knife search tags:SA_Windows_2012 -i");
-                p.waitFor();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-                while ((line = reader.readLine()) != null) {
-                    found = true;
-                    System.out.println(line);
-                }
-            }
-            long stopTime = System.currentTimeMillis();
-            System.out.println("Time in seconds: " + (stopTime - startTime)/1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String VHT_Installation = "SA_Windows_2012";
+        long zero = 0;
+        Map<String,Long> timeSinceChefPull = new HashMap<String,Long>();
+        System.out.println((System.currentTimeMillis()-timeSinceChefPull.getOrDefault(VHT_Installation, zero))/1000);
     }
 
 }
