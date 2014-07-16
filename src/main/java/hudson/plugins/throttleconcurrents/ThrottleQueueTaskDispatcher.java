@@ -29,7 +29,6 @@ public class ThrottleQueueTaskDispatcher extends QueueTaskDispatcher {
         String VHT_Installation = tjp.getCategories().get(0);
         List<String> servers;
         ThrottleJobProperty.DescriptorImpl descriptor =  (ThrottleJobProperty.DescriptorImpl)tjp.getDescriptor();
-        LOGGER.log(Level.SEVERE, "getServersFromTJP: {0}", descriptor.getServersFromTJP(VHT_Installation));
         servers = descriptor.getServersFromTJP(VHT_Installation);
         
         boolean foundFreeServer = false;

@@ -249,7 +249,8 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
         }
         
         public List<String> getServersFromTJP(String VHT_Installation) {
-            return allServers.get(VHT_Installation);
+            List<String> servers = allServers.get(VHT_Installation);
+            return servers;
         }
         
         public void setServers(String VHT_Installation, List<String> servers){

@@ -6,6 +6,7 @@
 
 package hudson.plugins.throttleconcurrents;
 
+import hudson.Extension;
 import hudson.model.PeriodicWork;
 import hudson.util.TimeUnit2;
 import java.io.BufferedReader;
@@ -20,6 +21,7 @@ import jenkins.model.Jenkins;
  *
  * @author mbrown
  */
+@Extension
 public class ThrottlePeriodicWork extends PeriodicWork{
 
     @Override
@@ -49,8 +51,13 @@ public class ThrottlePeriodicWork extends PeriodicWork{
                 e.printStackTrace();
             }
             descriptor.setServers(VHT_Installation, list);
-            LOGGER.log(Level.SEVERE, "{0} servers set to:\n {1}", new Object[]{VHT_Installation, list});
         }
     }
+    
+    @Override
+    public long getInitialDelay() {
+        return 0;
+    }
+    
     private static final Logger LOGGER = Logger.getLogger(ThrottleQueueTaskDispatcher.class.getName());
 }
