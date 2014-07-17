@@ -1,45 +1,8 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <f:section title="Throttle Concurrent Builds">
-        <f:entry>
-            <f:checkbox name="simple" title="Simple Locks" checked="${simple}" field="simple"/>
-        </f:entry>
-        <j:if test="${!descriptor.simple}">
-            <f:entry title="Multi-Project Throttle Categories" field="categories">
-                <f:repeatable field="categories" add="${%Add Category}" minimum="0">
-                    <table width="100%">
-                        <f:entry title="Category Name" field="categoryName">
-                            <f:textbox />
-                        </f:entry>
-                        <f:entry title="${%Maximum Total Concurrent Builds}" field="maxConcurrentTotal">
-                            <f:textbox />
-                        </f:entry>
-                        <f:entry title="${%Maximum Concurrent Builds Per Node}" field="maxConcurrentPerNode">
-                            <f:textbox />
-                        </f:entry>
-                    </table>
-                    <f:repeatable field="nodeLabeledPairs" add="${%Add Maximum Per Labeled Node}" minimum="0" header="${%Maximum Per Labeled Node}">
-                        <table width="100%">
-                            <f:entry title="${%Throttled Node Label}" field="throttledNodeLabel">
-                                <f:textbox />
-                            </f:entry>
-                            <f:entry title="${%Maximum Concurrent Builds Per Node Labeled As Above}" field="maxConcurrentPerNodeLabeled">
-                                <f:textbox />
-                            </f:entry>
-                        </table>
-                        <div align="right">
-                            <f:repeatableDeleteButton/>
-                        </div>
-                    </f:repeatable>
-                    <div align="right">
-                        <f:repeatableDeleteButton/>
-                    </div>
-                </f:repeatable>
-            </f:entry>
-        </j:if>
-        
+    <f:section title="Server Selection">
         <j:if test="${descriptor.simple}">           
-            <f:entry title="Locks" field="categories">
+            <f:entry title="Server Types" field="categories">
                 <f:repeatable field="categories" add="${%Add}" minimum="0">
                     <table width="100%">
                         <f:entry title="Name:" field="categoryName">

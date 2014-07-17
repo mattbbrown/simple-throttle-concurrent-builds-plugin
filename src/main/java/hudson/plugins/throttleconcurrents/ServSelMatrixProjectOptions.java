@@ -39,7 +39,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Oleg Nenashev <o.v.nenashev@gmail.com>
  * @since TODO: 1.9.0?
  */
-public class ThrottleMatrixProjectOptions implements Describable<ThrottleMatrixProjectOptions> {
+public class ServSelMatrixProjectOptions implements Describable<ServSelMatrixProjectOptions> {
     
     private final boolean throttleMatrixBuilds;
     private final boolean throttleMatrixConfigurations;
@@ -48,11 +48,11 @@ public class ThrottleMatrixProjectOptions implements Describable<ThrottleMatrixP
      * A default configuration, which retains the behavior from
      * version 1.8. 
      */
-    public static final ThrottleMatrixProjectOptions DEFAULT = 
-            new ThrottleMatrixProjectOptions(true, false);
+    public static final ServSelMatrixProjectOptions DEFAULT = 
+            new ServSelMatrixProjectOptions(false, true);
     
     @DataBoundConstructor
-    public ThrottleMatrixProjectOptions(boolean throttleMatrixBuilds, boolean throttleMatrixConfigurations) {
+    public ServSelMatrixProjectOptions(boolean throttleMatrixBuilds, boolean throttleMatrixConfigurations) {
         this.throttleMatrixBuilds = throttleMatrixBuilds;
         this.throttleMatrixConfigurations = throttleMatrixConfigurations;
     }
@@ -69,20 +69,20 @@ public class ThrottleMatrixProjectOptions implements Describable<ThrottleMatrixP
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
     
     @Override
-    public Descriptor<ThrottleMatrixProjectOptions> getDescriptor() {
+    public Descriptor<ServSelMatrixProjectOptions> getDescriptor() {
         return DESCRIPTOR;
     }
     
-    public static class DescriptorImpl extends Descriptor<ThrottleMatrixProjectOptions> {
+    public static class DescriptorImpl extends Descriptor<ServSelMatrixProjectOptions> {
 
         @Override
         public String getDisplayName() {
-            return Messages.ThrottleMatrixProjectOptions_DisplayName();
+            return "Matrix Options";
         }
         
         @Nonnull
-        public ThrottleMatrixProjectOptions getDefaults() {
-            return ThrottleMatrixProjectOptions.DEFAULT;
+        public ServSelMatrixProjectOptions getDefaults() {
+            return ServSelMatrixProjectOptions.DEFAULT;
         }
     }
 }

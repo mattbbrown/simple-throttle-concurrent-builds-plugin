@@ -29,12 +29,11 @@ THE SOFTWARE.
     <version>1.571</version>
   </parent>
 
-  <artifactId>throttle-concurrents-simple</artifactId>
+  <artifactId>server-selection-plugin</artifactId>
   <packaging>hpi</packaging>
-  <name>Jenkins Throttle Concurrent Builds Simple Plug-in</name>
+  <name>Jenkins Server Selection Plug-in</name>
   <version>1.8.4-SNAPSHOT</version>
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Throttle+Concurrent+Builds+Plugin</url>
-  <description>Plugin to throttle the number of concurrent builds of a single job per node.</description>
+  <description>Plugin to dynamically assign available servers to jobs</description>
   
   <licenses>
     <license>
@@ -78,7 +77,7 @@ THE SOFTWARE.
     <developer>
       <id>mattbbrown</id>
       <name>Matthew Brown</name>
-      <email>andrew.bayer@gmail.com</email>
+      <email>mbrown@virtualhold.com</email>
       <timezone>-5</timezone>
     </developer>
   </developers>
@@ -91,9 +90,9 @@ THE SOFTWARE.
   </repositories>
 
   <scm>
-    <connection>scm:git:git://github.com/mattbbrown/simple-throttle-concurrent-builds-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:mattbbrown/simple-throttle-concurrent-builds-plugin.git</developerConnection>
-    <url>http://github.com/mattbbrown/simple-throttle-concurrents-plugin</url>
+    <connection>scm:git:git://github.com/mattbbrown/server-selection-plugin</connection>
+    <developerConnection>scm:git:git@github.com:mattbbrown/server-selection-plugin</developerConnection>
+    <url>http://github.com/mattbbrown/server-selection-plugin</url>
   </scm>
 
 

@@ -35,8 +35,8 @@ public class ThrottleCategoryTest
     @Test
     public void shouldGetEmptyNodeLabeledPairsListUponInitialNull()
     {
-        ThrottleJobProperty.ThrottleCategory category =
-            new ThrottleJobProperty.ThrottleCategory(testCategoryName, 0, 0, null);
+        ServSelJobProperty.ThrottleCategory category =
+            new ServSelJobProperty.ThrottleCategory(testCategoryName, 0, 0, null);
         assertTrue("nodeLabeledPairs shall be empty", category.getNodeLabeledPairs().isEmpty());
     }
 
@@ -46,10 +46,10 @@ public class ThrottleCategoryTest
         String expectedLabel = "aLabel";
         Integer expectedMax = new Integer(1);
 
-        ThrottleJobProperty.ThrottleCategory category =
-            new ThrottleJobProperty.ThrottleCategory(testCategoryName, 0, 0, null);
-        List<ThrottleJobProperty.NodeLabeledPair> nodeLabeledPairs = category.getNodeLabeledPairs();
-        nodeLabeledPairs.add(new ThrottleJobProperty.NodeLabeledPair(expectedLabel, expectedMax));
+        ServSelJobProperty.ThrottleCategory category =
+            new ServSelJobProperty.ThrottleCategory(testCategoryName, 0, 0, null);
+        List<ServSelJobProperty.NodeLabeledPair> nodeLabeledPairs = category.getNodeLabeledPairs();
+        nodeLabeledPairs.add(new ServSelJobProperty.NodeLabeledPair(expectedLabel, expectedMax));
 
         String actualLabel = category.getNodeLabeledPairs().get(0).getThrottledNodeLabel();
         Integer actualMax = category.getNodeLabeledPairs().get(0).getMaxConcurrentPerNodeLabeled();

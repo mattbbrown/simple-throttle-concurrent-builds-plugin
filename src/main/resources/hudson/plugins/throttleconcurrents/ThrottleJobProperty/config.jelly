@@ -1,7 +1,6 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
-    <j:if test="${descriptor.simple}">
         <f:optionalBlock name="throttleEnabled"
-                         title="${%VHT Installation}"
+                         title="${%Target Server Type}"
                          inline="true"
                          checked="${instance.throttleEnabled}">
             <f:entry>
@@ -17,54 +16,5 @@
                     </tr>
                 </table>
             </f:entry>
-            
-            <!--Specific options for Matrix projects-->
-            <j:if test="${descriptor.isMatrixProject(it)}">
-                <f:entry>
-                    <f:property field="matrixOptions"/>
-                </f:entry>
-            </j:if>
         </f:optionalBlock>
-    </j:if>
-    
-    <j:if test="${!descriptor.simple}">
-        <f:optionalBlock name="throttleEnabled"
-                         title="${%Throttle Concurrent Builds} (${%Locks})"
-                         inline="true"
-                         checked="${instance.throttleEnabled}">
-            <f:entry title="${%Throttle this project alone}">
-                <f:radio name="throttleOption" checked="${instance.throttleOption==null || instance.throttleOption=='project'}"
-                         title="${%Throttle this project alone}" value="project"/>
-            </f:entry>
-            <f:entry title="${%Throttle this project as part of one or more categories}">
-                <f:radio name="throttleOption" checked="${instance.throttleOption=='category'}"
-                         title="${%Throttle this project as part of one or more categories}" value="category"/>
-            </f:entry>
-
-            <f:entry title="${%Maximum Total Concurrent Builds}"
-                     field="maxConcurrentTotal">
-                <f:textbox />
-            </f:entry>
-            <f:entry title="${%Maximum Concurrent Builds Per Node}"
-                     field="maxConcurrentPerNode">
-                <f:textbox />
-            </f:entry>
-            <j:if test="${!empty(descriptor.categories)}">
-                <f:entry title="${%Multi-Project Throttle Category}">
-                    <j:forEach var="cat" items="${descriptor.categories}">
-                        <f:checkbox name="categories" json="${cat.categoryName}" checked="${instance.categories.contains(cat.categoryName)}" />
-                        <label class="attach-previous">${cat.categoryName}</label>
-                        <st:nbsp/>
-                    </j:forEach>
-                </f:entry>
-            </j:if>
-                  
-            <!--Specific options for Matrix projects-->
-            <j:if test="${descriptor.isMatrixProject(it)}">
-                <f:entry>
-                    <f:property field="matrixOptions"/>
-                </f:entry>
-            </j:if>
-        </f:optionalBlock>
-    </j:if>
 </j:jelly>

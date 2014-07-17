@@ -44,7 +44,7 @@ import org.jvnet.hudson.test.HudsonTestCase;
 
 /**
  * This class initiates the testing of
- * {@link hudson.plugins.throttleconcurrents.ThrottleQueueTaskDispatcher}.<br>
+ * {@link hudson.plugins.throttleconcurrents.ServSelQueueTaskDispatcher}.<br>
  * -Test methods for
  * {@link hudson.plugins.throttleconcurrents.ThrottleQueueTaskDispatcher#canTake(hudson.model.Node, hudson.model.Queue.Task)}.<br>
  * -Happens to test
@@ -485,7 +485,7 @@ public class ThrottleQueueTaskDispatcherTest extends HudsonTestCase {
 
     private String configureLogger()
             throws IOException, MalformedURLException {
-        String logger = ThrottleQueueTaskDispatcher.class.getName();
+        String logger = ServSelQueueTaskDispatcher.class.getName();
         jenkins.getLog().doNewLogRecorder(logger);
         URL url = new URL(getURL() + logUrlPrefix + logger + "/" + configUrlSuffix);
         HtmlPage page = createWebClient().getPage(url);

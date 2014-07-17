@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package hudson.plugins.throttleconcurrents;
 
 import hudson.Extension;
@@ -22,42 +21,43 @@ import jenkins.model.Jenkins;
  * @author mbrown
  */
 @Extension
-public class ThrottlePeriodicWork extends PeriodicWork{
+public class ServSelPeriodicWork extends PeriodicWork {
 
     @Override
     public long getRecurrencePeriod() {
-        return TimeUnit2.MINUTES.toMillis(10);
+        return TimeUnit2.MINUTES.toMillis(5);
     }
 
     @Override
     protected void doRun() throws Exception {
-        ThrottleJobProperty.DescriptorImpl descriptor = Jenkins.getInstance().getDescriptorByType(ThrottleJobProperty.DescriptorImpl.class);
-        for (String VHT_Installation : descriptor.getCategoryNames()) {
-            List<String> list = new ArrayList<String>();
+        ServSelJobProperty.DescriptorImpl descriptor = Jenkins.getInstance().getDescriptorByType(ServSelJobProperty.DescriptorImpl.class);
+        for (String targetServerType : descriptor.getCategoryNames()) {
+            List<String> serverList = new ArrayList<String>();
             Process p;
             try {
                 Runtime R = Runtime.getRuntime();
-                p = R.exec("rvm ruby-1.9.3-p547@knife do knife search tags:" + VHT_Installation + " -i");
+                p = R.exec("rvm ruby-1.9.3-p547@knife do knife search tags:" + targetServerType + " -i");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 p.waitFor();
 
-                String line;
+                String server;
                 reader.readLine();
                 reader.readLine();
-                while ((line = reader.readLine()) != null) {
-                    list.add(line);
+                while ((server = reader.readLine()) != null) {
+                    serverList.add(server);
+                    descriptor.setServerType(server, targetServerType);
                 }
+                descriptor.setServers(targetServerType, serverList);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            descriptor.setServers(VHT_Installation, list);
         }
     }
-    
+
     @Override
     public long getInitialDelay() {
         return 0;
     }
-    
-    private static final Logger LOGGER = Logger.getLogger(ThrottleQueueTaskDispatcher.class.getName());
+
+    private static final Logger LOGGER = Logger.getLogger(ServSelQueueTaskDispatcher.class.getName());
 }

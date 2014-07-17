@@ -14,18 +14,18 @@ import org.jvnet.hudson.test.HudsonTestCase;
 
 public class ThrottleJobPropertyTest extends HudsonTestCase {
 
-    private static final String THROTTLE_OPTION_CATEGORY = "category"; // TODO move this into ThrottleJobProperty and use consistently; same for "project"
+    private static final String THROTTLE_OPTION_CATEGORY = "category"; // TODO move this into ServSelJobProperty and use consistently; same for "project"
 
     @Bug(19623)
     public void testGetCategoryProjects() throws Exception {
         String alpha = "alpha", beta = "beta", gamma = "gamma"; // category names
         FreeStyleProject p1 = createFreeStyleProject("p1");
         FreeStyleProject p2 = createFreeStyleProject("p2");
-        p2.addProperty(new ThrottleJobProperty(1, 1, Arrays.asList(alpha), false, THROTTLE_OPTION_CATEGORY, ThrottleMatrixProjectOptions.DEFAULT));
+        p2.addProperty(new ServSelJobProperty(1, 1, Arrays.asList(alpha), false, THROTTLE_OPTION_CATEGORY, ServSelMatrixProjectOptions.DEFAULT));
         FreeStyleProject p3 = createFreeStyleProject("p3");
-        p3.addProperty(new ThrottleJobProperty(1, 1, Arrays.asList(alpha, beta), true, THROTTLE_OPTION_CATEGORY, ThrottleMatrixProjectOptions.DEFAULT));
+        p3.addProperty(new ServSelJobProperty(1, 1, Arrays.asList(alpha, beta), true, THROTTLE_OPTION_CATEGORY, ServSelMatrixProjectOptions.DEFAULT));
         FreeStyleProject p4 = createFreeStyleProject("p4");
-        p4.addProperty(new ThrottleJobProperty(1, 1, Arrays.asList(beta, gamma), true, THROTTLE_OPTION_CATEGORY, ThrottleMatrixProjectOptions.DEFAULT));
+        p4.addProperty(new ServSelJobProperty(1, 1, Arrays.asList(beta, gamma), true, THROTTLE_OPTION_CATEGORY, ServSelMatrixProjectOptions.DEFAULT));
         // TODO when core dep ≥1.480.3, add cloudbees-folder as a test dependency so we can check jobs inside folders
         assertProjects(alpha, p3);
         assertProjects(beta, p3, p4);
@@ -37,13 +37,13 @@ public class ThrottleJobPropertyTest extends HudsonTestCase {
         assertProjects(gamma);
         AbstractProject<?,?> p3b = jenkins.<AbstractProject<?,?>>copy(p3, "p3b");
         assertProjects(beta, p3, p3b);
-        p3.removeProperty(ThrottleJobProperty.class);
+        p3.removeProperty(ServSelJobProperty.class);
         assertProjects(beta, p3b);
     }
     private void assertProjects(String category, AbstractProject<?,?>... projects) {
         jenkins.setAuthorizationStrategy(new RejectAllAuthorizationStrategy());
         try {
-            assertEquals(new HashSet<AbstractProject<?,?>>(Arrays.asList(projects)), new HashSet<AbstractProject<?,?>>(ThrottleJobProperty.getCategoryProjects(category)));
+            assertEquals(new HashSet<AbstractProject<?,?>>(Arrays.asList(projects)), new HashSet<AbstractProject<?,?>>(ServSelJobProperty.getCategoryProjects(category)));
         } finally {
             jenkins.setAuthorizationStrategy(AuthorizationStrategy.UNSECURED); // do not check during e.g. rebuildDependencyGraph from delete
         }
