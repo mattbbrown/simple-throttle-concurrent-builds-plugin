@@ -10,4 +10,4 @@ Knife command to delete tag:
 knife tag delete SERVERNAME TAG
 
 Knife command used to get servers:
-knife search tags:TAGS -i
+knife search tags:TAG -i
