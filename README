@@ -1,8 +1,13 @@
-Simplified throttle-concurrent-builds-plugin
-Simplified to behave like a lock
-Categories allow only 1 concurrent build across all nodes
-A job can only have 1 category
-Input fields removed on UI
+Server Selection Plugin
 
-To activate simple mode, go to configure jenkins. Under Throttle-Concurrent-Builds, select simple locks.
-Apply the changes and reload the page to see simplified UI.
+This plugin creates a list of servers by polling Chef periodically (every 5 minutes) for nodes with tags specified under the global configuration page.
+When a job is built, a server is picked from the appropriate list and assigned to the job. The name of the server is injected into the build environment as 'TARGET'
+
+Knife commands to add tag:
+knife tag create SERVERNAME TAG
+
+Knife command to delete tag:
+knife tag delete SERVERNAME TAG
+
+Knife command used to get servers:
+knife search tags:TAGS -i
