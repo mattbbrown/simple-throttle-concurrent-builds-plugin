@@ -22,76 +22,76 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>1.571</version>
-    </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.571</version>
+  </parent>
 
-    <artifactId>throttle-concurrents-simple</artifactId>
-    <packaging>hpi</packaging>
-    <name>Jenkins Throttle Concurrent Builds Simple Plug-in</name>
-    <version>1.8.4-SNAPSHOT</version>
-    <url>http://wiki.jenkins-ci.org/display/JENKINS/Throttle+Concurrent+Builds+Plugin</url>
-    <description>Plugin to throttle the number of concurrent builds of a single job per node.</description>
+  <artifactId>throttle-concurrents-simple</artifactId>
+  <packaging>hpi</packaging>
+  <name>Jenkins Throttle Concurrent Builds Simple Plug-in</name>
+  <version>1.8.5</version>
+  <url>http://wiki.jenkins-ci.org/display/JENKINS/Throttle+Concurrent+Builds+Plugin</url>
+  <description>Plugin to throttle the number of concurrent builds of a single job per node.</description>
   
-    <licenses>
-        <license>
-            <name>MIT license</name>
-            <comments>All source code is under the MIT license.</comments>
-        </license>
-    </licenses>
+  <licenses>
+    <license>
+      <name>MIT license</name>
+      <comments>All source code is under the MIT license.</comments>
+    </license>
+  </licenses>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.0-beta-1</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <goals>deploy</goals>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.0-beta-1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <goals>deploy</goals>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-    <developers>
-        <developer>
-            <id>mattbbrown</id>
-            <name>Matthew Brown</name>
-            <email>andrew.bayer@gmail.com</email>
-            <timezone>-5</timezone>
-        </developer>
-    </developers>
+  <developers>
+    <developer>
+      <id>mattbbrown</id>
+      <name>Matthew Brown</name>
+      <email>andrew.bayer@gmail.com</email>
+      <timezone>-5</timezone>
+    </developer>
+  </developers>
 
-    <repositories>
-        <repository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </repository>
-    </repositories>
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
 
-    <scm>
-        <connection>scm:git:git://github.com/mattbbrown/simple-throttle-concurrent-builds-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:mattbbrown/simple-throttle-concurrent-builds-plugin.git</developerConnection>
-        <url>http://github.com/mattbbrown/simple-throttle-concurrents-plugin</url>
-    </scm>
+  <scm>
+    <connection>scm:git:git://github.com/mattbbrown/simple-throttle-concurrent-builds-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:mattbbrown/simple-throttle-concurrent-builds-plugin.git</developerConnection>
+    <url>http://github.com/mattbbrown/simple-throttle-concurrents-plugin</url>
+  </scm>
 
 
     <pluginRepositories>
