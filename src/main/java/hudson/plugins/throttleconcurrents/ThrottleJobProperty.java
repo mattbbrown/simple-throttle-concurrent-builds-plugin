@@ -91,8 +91,8 @@ public class ThrottleJobProperty extends JobProperty<AbstractProject<?,?>> {
             }
             else {
                 throttleOption = "category";
-                maxConcurrentPerNode = 0;
-                maxConcurrentTotal = 0;
+                maxConcurrentPerNode = 1;
+                maxConcurrentTotal = 1;
             }
         }
         configVersion = 1L;
