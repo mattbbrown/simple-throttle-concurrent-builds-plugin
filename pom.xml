@@ -32,7 +32,7 @@ THE SOFTWARE.
   <artifactId>throttle-concurrents-simple</artifactId>
   <packaging>hpi</packaging>
   <name>Jenkins Throttle Concurrent Builds Simple Plug-in</name>
-  <version>1.8.4-SNAPSHOT</version>
+  <version>1.8.5</version>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Throttle+Concurrent+Builds+Plugin</url>
   <description>Plugin to throttle the number of concurrent builds of a single job per node.</description>
   
@@ -105,6 +105,12 @@ THE SOFTWARE.
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>2.0.1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>jenkins-core</artifactId>
+            <version>1.532.3</version>
             <type>jar</type>
         </dependency>
     </dependencies>
