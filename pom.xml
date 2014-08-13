@@ -72,8 +72,12 @@ THE SOFTWARE.
   </build>
 
   <developers>
+      <developer>
+          <name>Andrew Bayer</name>
+          <email>andrew.bayer@gmail.com</email>
+          <timezone>-8</timezone>
+      </developer>
     <developer>
-      <id>mattbbrown</id>
       <name>Matthew Brown</name>
       <timezone>-5</timezone>
     </developer>
